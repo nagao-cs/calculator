@@ -1,4 +1,5 @@
 import tkinter as tk
+from parser import Parser
 
 class CalculatorLogic:
     def __init__(self):
@@ -12,7 +13,7 @@ class CalculatorLogic:
         
     def calculate(self):
         try:
-            result = eval(self.expression)
+            result = Parser(self.expression)
             self.expression = str(result)
             return result
         except Exception as e:
