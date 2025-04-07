@@ -13,8 +13,11 @@ class CalculatorLogic:
         
     def calculate(self):
         try:
-            result = Parser(self.expression)
-            self.expression = str(result)
+            print(self.expression)  # Debugging line to check the expression before parsing
+            parser = Parser(self.expression)
+            parser.parse(self.expression)
+            result = parser.evaluate(parser._output)
+            self.expression = result
             return result
         except Exception as e:
             self.expression = ""

@@ -19,10 +19,8 @@ class Parser():
         self._stack = list()
         self._output = list()
         
-        print(self._tokens)
+        print("tokens", self._tokens)
         
-        self.parse(expr)
-        self.evaluate(self._output)
         
     def parse(self, expr):
         """
@@ -51,7 +49,7 @@ class Parser():
                     self._stack.append(token)
             else:
                 self._output.append(token)
-            print(self._output, self._stack)
+            # print(self._output, self._stack)
         
         while self._stack:
             self._output.append(self._stack.pop())
@@ -84,6 +82,7 @@ class Parser():
             else:
                 cnt += 1
         
+        print("Result:", BNF[0])
         return BNF[0]
 
 
@@ -91,5 +90,5 @@ class Parser():
 if __name__ == "__main__":
     expr = "3 + 5 * ( 2 - 8 )" 
     parser = Parser(expr)
-
-    print(parser.evaluate(parser._output))  # Output the result of the expression
+    parser.parse(expr)
+    result = parser.evaluate(parser._output)
