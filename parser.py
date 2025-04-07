@@ -1,7 +1,9 @@
+import re
+
 class Parser():
     _tokens: list
     _stack: list
-    _queue: list
+    _output: list
     _current_index: int
     
     symbols = {
@@ -12,36 +14,49 @@ class Parser():
     }
     
     def __init__(self, expr):
-        self._tokens = expr.split()
+        self._tokens = re.findall(r'\d+|[()+\-*/]', expr)
         self._current_index = 0
         self._stack = list()
-        self._queue = list()
+        self._output = list()
+        
+        print(self._tokens)
         
         self.parse(expr)
-        self.evaluate(self._queue)
+        self.evaluate(self._output)
         
     def parse(self, expr):
+        """
+        式を逆ポーランド気泡に変換する
+        """
         for token in self._tokens:
             if token == '(':
                 self._stack.append(token)
             elif token == ')':
-                for i in range(len(self._stack)-1, -1, -1):
-                    if self._stack[i] == '(':
-                        self._stack.pop(i)
+                if token in self._stack:
+                    raise ValueError("Invalid expression")
+                
+                while True:
+                    top = self._stack.pop()
+                    if top == '(':
                         break
-                    else:
-                        self._queue.append(self._stack.pop())
-            elif token in self.symbols.keys():
-                while len(self._stack) > 0 and self._stack[-1] != '(' and self.symbols[token] <= self.symbols[self._stack[-1]]:
-                    self._queue.append(self._stack.pop())
-                self._stack.append(token)
+                    self._output.append(top)
+            
+            elif token in Parser.symbols.keys():
+                if self._stack and self._stack[-1] in Parser.symbols.keys() and Parser.symbols[token] <= Parser.symbols[self._stack[-1]]:
+                    # print(self._stack[-1], token)
+                    symbol = self._stack.pop()
+                    self._output.append(symbol)
+                    self._stack.append(token)
+                else:
+                    self._stack.append(token)
             else:
-                self._queue.append(token)
+                self._output.append(token)
+            print(self._output, self._stack)
         
-        while len(self._stack) > 0:
-            self._queue.append(self._stack.pop())
-        
-        return self._queue
+        while self._stack:
+            self._output.append(self._stack.pop())
+        print("BNF:", self._output)
+        # return self._output
     
     def evaluate(self, BNF):
         """
@@ -74,7 +89,7 @@ class Parser():
 
 #test
 if __name__ == "__main__":
-    expr = "3 + 5 * ( 2 - 8 )"
+    expr = "3 + 5 * ( 2 - 8 )" 
     parser = Parser(expr)
-    print(parser._queue)  # Output the postfix notation
-    print(parser.evaluate(parser._queue))  # Output the result of the expression
+
+    print(parser.evaluate(parser._output))  # Output the result of the expression
